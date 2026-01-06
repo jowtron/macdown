@@ -35,7 +35,7 @@ jobs:
         sudo gem install cocoapods
         pod install
 
-    - name: Build MacDown
+    - name: Build MacDown (Universal Binary)
       run: |
         xcodebuild -workspace MacDown.xcworkspace \
           -scheme MacDown \
@@ -45,6 +45,8 @@ jobs:
           CODE_SIGNING_REQUIRED=NO \
           CODE_SIGNING_ALLOWED=NO \
           MACOSX_DEPLOYMENT_TARGET=10.13 \
+          ARCHS="x86_64 arm64" \
+          ONLY_ACTIVE_ARCH=NO \
           build
 
     - name: Create App Bundle
