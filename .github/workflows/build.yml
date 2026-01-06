@@ -1,0 +1,68 @@
+name: Build MacDown
+
+on:
+  push:
+    branches: [ release-with-fix ]
+  pull_request:
+    branches: [ release-with-fix ]
+  workflow_dispatch:
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        submodules: true
+        fetch-depth: 0
+
+    - name: Initialize submodules
+      run: git submodule update --init --recursive
+
+    - name: Generate parser
+      run: |
+        cd Dependency/peg-markdown-highlight
+        make
+
+    - name: Generate version header
+      run: |
+        cd Dependency/version
+        make
+
+    - name: Install CocoaPods
+      run: |
+        sudo gem install cocoapods
+        pod install
+
+    - name: Build MacDown (Universal Binary)
+      run: |
+        xcodebuild -workspace MacDown.xcworkspace \
+          -scheme MacDown \
+          -configuration Release \
+          -derivedDataPath build \
+          CODE_SIGN_IDENTITY="" \
+          CODE_SIGNING_REQUIRED=NO \
+          CODE_SIGNING_ALLOWED=NO \
+          MACOSX_DEPLOYMENT_TARGET=10.13 \
+          ARCHS="x86_64 arm64" \
+          ONLY_ACTIVE_ARCH=NO \
+          build
+
+    - name: Create App Bundle
+      run: |
+        mkdir -p artifacts
+        cp -R build/Build/Products/Release/MacDown.app artifacts/
+        cd artifacts && zip -r MacDown.zip MacDown.app
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: MacDown
+        path: artifacts/MacDown.zip
+        retention-days: 30
