@@ -25,6 +25,11 @@ jobs:
     - name: Initialize submodules
       run: git submodule update --init --recursive
 
+    - name: Generate parser
+      run: |
+        cd Dependency/peg-markdown-highlight
+        make
+
     - name: Install CocoaPods
       run: |
         sudo gem install cocoapods
