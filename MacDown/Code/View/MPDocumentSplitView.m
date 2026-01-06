@@ -71,6 +71,11 @@
     right.frame = NSMakeRect(leftWidth + dividerThickness, 0.0,
                              rightWidth, right.frame.size.height);
     [self setPosition:leftWidth ofDividerAtIndex:0];
+
+    // Hide views with zero width to prevent black box rendering artifacts
+    // from layer-backed views that don't properly redraw at zero width
+    left.hidden = (leftWidth == 0.0);
+    right.hidden = (rightWidth == 0.0);
 }
 
 - (void)swapViews
@@ -81,5 +86,20 @@
     self.subviews = @[right, left];
 }
 
+- (void)adjustSubviews
+{
+    [super adjustSubviews];
+
+    // Update hidden state after manual divider dragging to prevent
+    // black box rendering artifacts from layer-backed views
+    NSArray *parts = self.subviews;
+    if (parts.count == 2)
+    {
+        NSView *left = parts[0];
+        NSView *right = parts[1];
+        left.hidden = (left.frame.size.width == 0.0);
+        right.hidden = (right.frame.size.width == 0.0);
+    }
+}
 
 @end
