@@ -9,7 +9,7 @@ on:
 
 jobs:
   build:
-    runs-on: macos-latest
+    runs-on: macos-14
 
     steps:
     - name: Checkout
@@ -17,15 +17,9 @@ jobs:
       with:
         submodules: recursive
 
-    - name: Setup Ruby
-      uses: ruby/setup-ruby@v1
-      with:
-        ruby-version: '3.2'
-        bundler-cache: true
-
     - name: Install CocoaPods
       run: |
-        gem install cocoapods
+        sudo gem install cocoapods
         pod install
 
     - name: Build MacDown
