@@ -21,6 +21,17 @@ jobs:
       with:
         submodules: true
         fetch-depth: 0
+        fetch-tags: true
+
+    - name: Fetch all tags
+      run: |
+        git fetch --tags --force
+        echo "Available tags:"
+        git tag -l 'v*' | tail -10
+        echo "Current commit:"
+        git log --oneline -1
+        echo "Detected version tag:"
+        git describe --tags --match 'v*' --abbrev=0
 
     - name: Initialize submodules
       run: git submodule update --init --recursive
@@ -34,6 +45,8 @@ jobs:
       run: |
         cd Dependency/version
         make
+        echo "Generated version.h:"
+        cat version.h
 
     - name: Install CocoaPods
       run: |
