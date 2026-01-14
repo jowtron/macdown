@@ -48,6 +48,16 @@ jobs:
         echo "Generated version.h:"
         cat version.h
 
+    - name: Cache CocoaPods
+      uses: actions/cache@v4
+      with:
+        path: |
+          Pods
+          ~/.cocoapods/repos
+        key: pods-${{ runner.os }}-${{ hashFiles('Podfile.lock') }}
+        restore-keys: |
+          pods-${{ runner.os }}-
+
     - name: Install CocoaPods
       run: |
         sudo gem install cocoapods
